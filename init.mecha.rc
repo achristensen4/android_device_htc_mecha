@@ -4,7 +4,7 @@ on early-fs
     mkdir /data 0771 system system
     mkdir /cache 0770 system cache
     mkdir /devlog 0700 root root
-    mount ext4 /dev/block/mmcblk0p25 /system wait ro barrier=1
+    mount ext4 /dev/block/mmcblk0p25 /system wait rw barrier=1
     mount ext4 /dev/block/mmcblk0p26 /data wait noatime nosuid nodev barrier=1 noauto_da_alloc
     mount ext4 /dev/block/mmcblk0p27 /cache wait noatime nosuid nodev barrier=1
     mount ext4 /dev/block/mmcblk0p29 /devlog wait noatime nosuid nodev barrier=1
@@ -87,8 +87,8 @@ service wpa_supplicant /system/bin/logwrapper /system/bin/wpa_supplicant \
     -Dwext -ieth0 -c/data/misc/wifi/wpa_supplicant.conf
 #   we will start as root and wpa_supplicant will switch to user wifi
 #   after setting up the capabilities required for WEXT
-#   user wifi
-#   group wifi inet keystore
+    user wifi
+    group wifi inet keystore
     socket wpa_eth0 dgram 660 wifi wifi
     disabled
     oneshot
@@ -108,15 +108,13 @@ service akmd /system/bin/akmd
 
 # bugreport is triggered by the KEY_VOLUMEUP and BTN_VOLUMEDOWN keycodes
 service bugreport /system/bin/dumpstate -d -v -o /sdcard/bugreports/bugreport
-    disabled
     oneshot
     keycodes 115 114
 
-service hciattach /system/bin/brcm_patchram_plus --enable_hci --enable_lpm \
+service hciattach /system/bin/brcm_patchram_plus --enable_hci --enable_lpm
     --baudrate 3000000 --patchram /etc/firmware/bcm4329.hcd /dev/ttyHS0
     user bluetooth
     group bluetooth net_bt_admin
-    disabled
 
 
 service rmt_storage /system/bin/rmt_storage /dev/block/mmcblk0p13 /dev/block/mmcblk0p14
@@ -141,15 +139,12 @@ on property:ro.data.large_tcp_window_size=true
 service modem /system/xbin/wireless_modem
 	user system
 	group system
-	disabled
 
 on property:service.modem.enable=1
 	start modem
 
 on property:service.modem.enable=0
 	stop modem
-
-
 
 service dmagent /system/bin/dmagent -N -P19 -SA -VSY
     socket dmagent stream 660 root radio
